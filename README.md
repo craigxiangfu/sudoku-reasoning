@@ -1,4 +1,8 @@
-# Sudoku Reasoning with Step-Based (Hint-Based) Training
+**Status:** In Development - Part II
+
+# Sudoku Reasoning with Step-Based (Hint-Based) Training (Part I)
+
+Reasoning Model Group, Modularium Research, December 2024
 
 This repo demonstrates a Sudoku solving system that trys (its best) to mimic human reasoning. It clearns to fill one cell at a time,
 in a more "human-like" step-by-step manner. But this is only the bottom line of "human reasoning".
