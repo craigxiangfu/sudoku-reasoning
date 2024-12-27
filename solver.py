@@ -1,10 +1,8 @@
 # solver.py
 
-# solver.py
-
 import numpy as np
 from typing import List, Tuple, Optional
-from strategies import Grid, HumanSolver, SolveStep
+from strategies import Grid, HumanSolver, SolveStep, Strategy
 
 class SudokuSolver:
     """
@@ -16,7 +14,18 @@ class SudokuSolver:
         self.original_puzzle = puzzle.copy()
         self.grid = Grid(puzzle)
         self.solver = HumanSolver(self.grid)
-        
+        self.available_strategies = [
+            Strategy.NAKED_SINGLE,
+            Strategy.HIDDEN_SINGLE,
+            Strategy.NAKED_PAIR,
+            Strategy.HIDDEN_PAIR,
+            Strategy.POINTING_PAIR,
+            Strategy.BOX_LINE_REDUCTION,
+            Strategy.XY_WING,
+            Strategy.X_WING,
+            Strategy.SWORDFISH
+        ]
+    
     def solve(self) -> Tuple[bool, np.ndarray, List[str]]:
         """
         Solve the puzzle using human strategies.
@@ -30,14 +39,53 @@ class SudokuSolver:
         
         return success, self.grid.grid, explanations
     
-    def solve_step(self) -> Tuple[Optional[SolveStep], np.ndarray]:
+    def solve_step(self, strategy: Optional[Strategy] = None) -> Tuple[Optional[SolveStep], np.ndarray]:
         """
-        Perform a single solving step.
+        Perform a single solving step using the specified strategy.
+        If no strategy is specified, try all available strategies.
+        
+        Args:
+            strategy: Optional specific strategy to use
+            
         Returns:
             - step: The solving step taken (None if no step possible)
             - current_grid: The current state of the grid
         """
-        step = self.solver.solve_step()
+        if strategy is None:
+            # Try all strategies if none specified
+            step = self.solver.solve_step()
+        else:
+            # Try the specific strategy
+            if strategy == Strategy.NAKED_SINGLE:
+                step = self.solver.find_naked_single()
+            elif strategy == Strategy.HIDDEN_SINGLE:
+                step = self.solver.find_hidden_single()
+            elif strategy == Strategy.NAKED_PAIR:
+                step = self.solver.find_naked_pair()
+            elif strategy == Strategy.HIDDEN_PAIR:
+                step = self.solver.find_hidden_pair()
+            elif strategy == Strategy.POINTING_PAIR:
+                step = self.solver.find_pointing_pair()
+            elif strategy == Strategy.BOX_LINE_REDUCTION:
+                step = self.solver.find_box_line_reduction()
+            elif strategy == Strategy.XY_WING:
+                step = self.solver.find_xy_wing()
+            elif strategy == Strategy.X_WING:
+                step = self.solver.find_x_wing()
+            elif strategy == Strategy.SWORDFISH:
+                step = self.solver.find_swordfish()
+            else:
+                step = None
+        
+        # If a step was found, apply it
+        if step:
+            if step.value_placed is not None:
+                self.grid.set_value(
+                    step.cells_affected[0].row,
+                    step.cells_affected[0].col,
+                    step.value_placed
+                )
+        
         return step, self.grid.grid
     
     def get_candidates(self, row: int, col: int) -> set:
